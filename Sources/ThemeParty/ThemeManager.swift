@@ -41,6 +41,17 @@ public final class ThemeManager: ObservableObject {
     public func themeColor(named name: String) -> Color {
         self.themes[self.currentThemeData.0]?.colors[name] ?? missingColor
     }
+    
+    /// Create a clone of this theme manager.
+    func clone(selectedTheme: String?) -> ThemeManager {
+        let clone = ThemeManager(colorNames: self.colorNames, missingColor: self.missingColor)
+        for (themeName, theme) in self.themes {
+            clone.themes[themeName] = theme
+        }
+        
+        clone.currentThemeData = (selectedTheme, nil)
+        return clone
+    }
 }
 
 struct ThemeManagerEnvironmentKey: EnvironmentKey {

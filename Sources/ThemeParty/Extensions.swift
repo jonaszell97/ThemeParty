@@ -18,6 +18,34 @@ public struct ThemedContentView<Content: View>: View {
     }
 }
 
+public struct StaticThemedContentView<Content: View>: View {
+    /// The content view.
+    let content: Content
+    
+    /// The theme manager.
+    @Environment(\.themeManager) var themeManager
+    
+    /// The new theme manager.
+    @State var clonedThemeManager: ThemeManager? = nil
+    
+    /// The theme to select.
+    let selectedTheme: String?
+    
+    /// Create a themed background view.
+    init(selectedTheme: String?, @ViewBuilder content: @escaping () -> Content) {
+        self.content = content()
+        self.selectedTheme = selectedTheme
+    }
+    
+    public var body: some View {
+        content
+            .themed(by: clonedThemeManager)
+            .onAppear {
+                self.clonedThemeManager = self.themeManager?.clone(selectedTheme: selectedTheme)
+            }
+    }
+}
+
 public struct ThemedBackgroundView<Content: View>: View {
     /// The name of the color.
     let colorName: String
@@ -107,8 +135,15 @@ public struct ThemedShapeFillView<Content: Shape>: View {
 
 public extension View {
     /// Apply a theme manager to a view hierarchy.
-    func themed(by themeManager: ThemeManager) -> some View {
+    func themed(by themeManager: ThemeManager?) -> some View {
         self.environment(\.themeManager, themeManager)
+    }
+    
+    /// Apply a theme to this view hierarchy.
+    func applyTheme(_ name: String) -> some View {
+        StaticThemedContentView(selectedTheme: name) {
+            self
+        }
     }
 }
 

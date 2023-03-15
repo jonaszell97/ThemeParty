@@ -177,4 +177,18 @@ public extension Shape {
     func fill(themedColor: String) -> some View {
         ThemedShapeFillView(colorName: themedColor) { self }
     }
+    
+    /// Apply a themed stroke color.
+    func stroke(themedColor: String, style: StrokeStyle) -> some View {
+        ThemedContentView { _, themeManager in
+            self.stroke(themeManager?.themeColor(named: themedColor) ?? .pink, style: style)
+        }
+    }
+    
+    /// Apply a themed stroke color.
+    func stroke(themedColor: String, lineWidth: CGFloat) -> some View {
+        ThemedContentView { _, themeManager in
+            self.stroke(themeManager?.themeColor(named: themedColor) ?? .pink, lineWidth: lineWidth)
+        }
+    }
 }

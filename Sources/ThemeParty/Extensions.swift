@@ -3,18 +3,26 @@ import SwiftUI
 
 public struct ThemedContentView<Content: View>: View {
     /// The content view.
-    let content: (ThemeManager?) -> Content
+    let content: (String?, ThemeManager?) -> Content
+    
+    /// The current theme.
+    @State var theme: String? = nil
     
     /// The theme manager.
     @Environment(\.themeManager) var themeManager
     
     /// Create a themed background view.
-    init(@ViewBuilder content: @escaping (ThemeManager?) -> Content) {
+    public init(@ViewBuilder content: @escaping (String?, ThemeManager?) -> Content) {
         self.content = content
     }
     
     public var body: some View {
-        content(themeManager)
+        content(theme, themeManager)
+            .onReceive(themeManager!.$currentThemeData) { theme in
+                withAnimation(theme.1) {
+                    self.theme = theme.0
+                }
+            }
     }
 }
 
@@ -159,7 +167,7 @@ public extension View {
     }
     
     /// Apply modifiers with a theme.
-    func themed<Content: View>(@ViewBuilder content: @escaping (ThemeManager?) -> Content) -> some View {
+    func themed<Content: View>(@ViewBuilder content: @escaping (String?, ThemeManager?) -> Content) -> some View {
         ThemedContentView(content: content)
     }
 }

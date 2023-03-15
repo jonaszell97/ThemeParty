@@ -8,19 +8,18 @@ public final class ThemeManager: ObservableObject {
     /// The registered themes.
     var themes: [String?: AppTheme]
     
-    /// The theme color names.
-    let colorNames: [String]
-    
     /// The fallback color to use for missing colors.
     let missingColor: Color
     
     /// The current theme name, or nil if the default theme is selected.
     public var currentTheme: String? { currentThemeData.0 }
     
+    /// The current theme change animation.
+    public var currentAnimation: Animation? { currentThemeData.1 }
+    
     /// Create a theme manager.
-    public init(colorNames: [String], missingColor: Color = .pink) {
+    public init(missingColor: Color = .pink) {
         self.themes = [:]
-        self.colorNames = colorNames
         self.currentThemeData = (nil, nil)
         self.missingColor = missingColor
         
@@ -29,7 +28,7 @@ public final class ThemeManager: ObservableObject {
     
     /// Register a theme.
     public func registerTheme(name: String?) {
-        self.themes[name] = .init(name: name, colors: colorNames)
+        self.themes[name] = .init(name: name)
     }
     
     /// Change the theme.
@@ -39,12 +38,12 @@ public final class ThemeManager: ObservableObject {
     
     /// Get a color by name from the current theme.
     public func themeColor(named name: String) -> Color {
-        self.themes[self.currentThemeData.0]?.colors[name] ?? missingColor
+        self.themes[self.currentThemeData.0]?.color(named: name) ?? missingColor
     }
     
     /// Create a clone of this theme manager.
     func clone(selectedTheme: String?) -> ThemeManager {
-        let clone = ThemeManager(colorNames: self.colorNames, missingColor: self.missingColor)
+        let clone = ThemeManager(missingColor: self.missingColor)
         for (themeName, theme) in self.themes {
             clone.themes[themeName] = theme
         }

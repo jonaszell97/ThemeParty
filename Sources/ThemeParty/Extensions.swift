@@ -55,8 +55,8 @@ public struct StaticThemedContentView<Content: View>: View {
 }
 
 public struct ThemedBackgroundView<Content: View>: View {
-    /// The name of the color.
-    let colorName: String
+    /// The themed color.
+    let color: ThemedColor
     
     /// The content view.
     let content: Content
@@ -68,24 +68,25 @@ public struct ThemedBackgroundView<Content: View>: View {
     @Environment(\.themeManager) var themeManager
     
     /// Create a themed background view.
-    init(colorName: String, @ViewBuilder content: () -> Content) {
-        self.colorName = colorName
+    init(color: ThemedColor, @ViewBuilder content: () -> Content) {
+        self.color = color
         self.content = content()
     }
     
     public var body: some View {
-        content.background(backgroundColor)
+        content
+            .background(backgroundColor)
             .onReceive(themeManager!.$currentThemeData) { theme in
                 withAnimation(theme.1) {
-                    self.backgroundColor = themeManager!.themeColor(named: self.colorName)
+                    self.backgroundColor = themeManager!.themeColor(for: self.color)
                 }
             }
     }
 }
 
 public struct ThemedForegroundColorView<Content: View>: View {
-    /// The name of the color.
-    let colorName: String
+    /// The themed color.
+    let color: ThemedColor
     
     /// The content view.
     let content: Content
@@ -97,8 +98,8 @@ public struct ThemedForegroundColorView<Content: View>: View {
     @Environment(\.themeManager) var themeManager
     
     /// Create a themed background view.
-    init(colorName: String, @ViewBuilder content: () -> Content) {
-        self.colorName = colorName
+    init(color: ThemedColor, @ViewBuilder content: () -> Content) {
+        self.color = color
         self.content = content()
     }
     
@@ -106,15 +107,15 @@ public struct ThemedForegroundColorView<Content: View>: View {
         content.foregroundColor(foregroundColor)
             .onReceive(themeManager!.$currentThemeData) { theme in
                 withAnimation(theme.1) {
-                    self.foregroundColor = themeManager!.themeColor(named: self.colorName)
+                    self.foregroundColor = themeManager!.themeColor(for: self.color)
                 }
             }
     }
 }
 
 public struct ThemedShapeFillView<Content: Shape>: View {
-    /// The name of the color.
-    let colorName: String
+    /// The themed color.
+    let color: ThemedColor
     
     /// The content view.
     let content: Content
@@ -126,8 +127,8 @@ public struct ThemedShapeFillView<Content: Shape>: View {
     @Environment(\.themeManager) var themeManager
     
     /// Create a themed background view.
-    init(colorName: String, content: () -> Content) {
-        self.colorName = colorName
+    init(color: ThemedColor, @ViewBuilder content: () -> Content) {
+        self.color = color
         self.content = content()
     }
     
@@ -135,7 +136,7 @@ public struct ThemedShapeFillView<Content: Shape>: View {
         content.fill(fillColor ?? .clear)
             .onReceive(themeManager!.$currentThemeData) { theme in
                 withAnimation(theme.1) {
-                    self.fillColor = themeManager!.themeColor(named: self.colorName)
+                    self.fillColor = themeManager!.themeColor(for: self.color)
                 }
             }
     }
@@ -158,12 +159,22 @@ public extension View {
 public extension View {
     /// Apply a themed background color.
     func background(themedColor: String) -> some View {
-        ThemedBackgroundView(colorName: themedColor) { self }
+        ThemedBackgroundView(color: .themed(themedColor)) { self }
     }
     
     /// Apply a themed foreground color.
     func foreground(themedColor: String) -> some View {
-        ThemedForegroundColorView(colorName: themedColor) { self }
+        ThemedForegroundColorView(color: .themed(themedColor)) { self }
+    }
+    
+    /// Apply a themed background color.
+    func background(themedColor: ThemedColor) -> some View {
+        ThemedBackgroundView(color: themedColor) { self }
+    }
+    
+    /// Apply a themed foreground color.
+    func foreground(themedColor: ThemedColor) -> some View {
+        ThemedForegroundColorView(color: themedColor) { self }
     }
     
     /// Apply modifiers with a theme.
@@ -175,7 +186,7 @@ public extension View {
 public extension Shape {
     /// Apply a themed fill color.
     func fill(themedColor: String) -> some View {
-        ThemedShapeFillView(colorName: themedColor) { self }
+        ThemedShapeFillView(color: .themed(themedColor)) { self }
     }
     
     /// Apply a themed stroke color.
@@ -189,6 +200,25 @@ public extension Shape {
     func stroke(themedColor: String, lineWidth: CGFloat) -> some View {
         ThemedContentView { _, themeManager in
             self.stroke(themeManager?.themeColor(named: themedColor) ?? .pink, lineWidth: lineWidth)
+        }
+    }
+    
+    /// Apply a themed fill color.
+    func fill(themedColor: ThemedColor) -> some View {
+        ThemedShapeFillView(color: themedColor) { self }
+    }
+    
+    /// Apply a themed stroke color.
+    func stroke(themedColor: ThemedColor, style: StrokeStyle) -> some View {
+        ThemedContentView { _, themeManager in
+            self.stroke(themeManager?.themeColor(for: themedColor) ?? .pink, style: style)
+        }
+    }
+    
+    /// Apply a themed stroke color.
+    func stroke(themedColor: ThemedColor, lineWidth: CGFloat) -> some View {
+        ThemedContentView { _, themeManager in
+            self.stroke(themeManager?.themeColor(for: themedColor) ?? .pink, lineWidth: lineWidth)
         }
     }
 }

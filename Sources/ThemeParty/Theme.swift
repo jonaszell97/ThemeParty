@@ -11,12 +11,16 @@ public struct AppTheme {
     }
     
     /// The name for a theme color.
-    func color(named colorName: String) -> Color {
-        if let name {
-            return Color("\(name)_\(colorName)")
-        }
-        else {
+    func color(for themedColor: ThemedColor) -> Color {
+        switch themedColor {
+        case .themed(let colorName):
+            if let name {
+                return Color("\(name)_\(colorName)")
+            }
+            
             return Color(colorName)
+        case .fixed(let color):
+            return color
         }
     }
 }

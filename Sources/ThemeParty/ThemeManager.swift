@@ -38,7 +38,12 @@ public final class ThemeManager: ObservableObject {
     
     /// Get a color by name from the current theme.
     public func themeColor(named name: String) -> Color {
-        self.themes[self.currentThemeData.0]?.color(named: name) ?? missingColor
+        self.themes[self.currentThemeData.0]?.color(for: .themed(name)) ?? missingColor
+    }
+    
+    /// Get a color by name from the current theme.
+    public func themeColor(for color: ThemedColor) -> Color {
+        self.themes[self.currentThemeData.0]?.color(for: color) ?? missingColor
     }
     
     /// Create a clone of this theme manager.

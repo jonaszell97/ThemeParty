@@ -9,6 +9,18 @@ public enum ThemedColor {
     case fixed(_ color: Color)
 }
 
+public extension ThemedColor {
+    /// The resolved color for this themed color.
+    func resolvedColor(using themeManager: ThemeManager) -> Color {
+        switch self {
+        case .themed(let name):
+            return themeManager.themeColor(named: name)
+        case .fixed(let color):
+            return color
+        }
+    }
+}
+
 extension ThemedColor: Codable {
     enum CodingKeys: String, CodingKey {
         case themed, fixed
